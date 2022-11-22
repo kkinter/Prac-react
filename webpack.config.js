@@ -16,6 +16,7 @@ module.exports = {
     },
     hot: true,
     liveReload: false,
+    // 해당 설정이 없으면, /terms 로 이동시 cannot GET
     historyApiFallback: { index: "index.html" },
   },
   module: {
