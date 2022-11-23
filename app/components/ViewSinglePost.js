@@ -10,9 +10,13 @@ function ViewSinglePost() {
   const [post, setPost] = useState();
 
   useEffect(() => {
+    const ourRequest = axios.CancelToken.source();
+
     async function fetchPost() {
       try {
-        const response = await axios.get(`/post/${id}`);
+        const response = await axios.get(`/post/${id}`, {
+          cancelToken: ourRequest.token,
+        });
         console.log(response.data);
         setPost(response.data);
         setIsLoading(false);
@@ -21,6 +25,9 @@ function ViewSinglePost() {
       }
     }
     fetchPost();
+    return () => {
+      ourRequest.cancel();
+    };
   }, []);
 
   if (isLoading)
