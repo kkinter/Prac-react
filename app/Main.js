@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useReducer } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Axios from "axios";
@@ -17,6 +17,30 @@ import FlashMessages from "./components/FlashMessages";
 import ExampleContext from "./ExampleContext";
 
 function Main() {
+  const initalState = {
+    loggedIn: Boolean(localStorage.getItem("complexappToken")),
+    flashMessages: [],
+  };
+
+  function ourReducer(state, action) {
+    switch (action.type) {
+      case "login":
+        return { loggedIn: true, flashMessages: state.flashMessages };
+      case "logout":
+        return { loggedIn: flase, flashMessages: state.flashMessages };
+      case "flashMessage":
+        return {
+          loggedIn: state.loggedIn,
+          flashMessages: state.flashMessages.concat(action.value),
+        };
+    }
+  }
+
+  const [state, dispatch] = useReducer(ourReducer, initalState);
+  // dispatch({ type: "login" });
+  // dispatch({ type: "logout" });
+  // dispatch({ type: "flash", value: "Congrats, you created a post." });
+
   const [loggedIn, setLoggedIn] = useState(
     Boolean(localStorage.getItem("complexappToken"))
   );
@@ -44,5 +68,10 @@ function Main() {
   );
 }
 
-const root = ReactDOM.createRoot(document.querySelector("#app"));
-root.render(<Main />);
+// React 17
+// ReactDOM.render(<main />, document.querySelector("#app")));
+
+// React 18
+const root = ReactDOM.createRoot(document.querySelector("#app")).render(
+  <Main />
+);
