@@ -4,6 +4,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Axios from "axios";
 Axios.defaults.baseURL = "http://localhost:8080";
 
+import StateContext from "./StateContext";
+import DispatchContext from "./DispatchContext";
+
 // My components
 import Header from "./components/Header";
 import HomeGuest from "./components/HomeGuest";
@@ -14,7 +17,6 @@ import Terms from "./components/Terms";
 import CreatePost from "./components/CreatePost";
 import ViewSinglePost from "./components/ViewSinglePost";
 import FlashMessages from "./components/FlashMessages";
-import ExampleContext from "./ExampleContext";
 
 function Main() {
   const initalState = {
@@ -27,7 +29,7 @@ function Main() {
       case "login":
         return { loggedIn: true, flashMessages: state.flashMessages };
       case "logout":
-        return { loggedIn: flase, flashMessages: state.flashMessages };
+        return { loggedIn: false, flashMessages: state.flashMessages };
       case "flashMessage":
         return {
           loggedIn: state.loggedIn,
@@ -41,30 +43,35 @@ function Main() {
   // dispatch({ type: "logout" });
   // dispatch({ type: "flash", value: "Congrats, you created a post." });
 
-  const [loggedIn, setLoggedIn] = useState(
-    Boolean(localStorage.getItem("complexappToken"))
-  );
-  const [flashMessages, setFlashMessages] = useState([]);
+  // const [loggedIn, setLoggedIn] = useState(
+  //   Boolean(localStorage.getItem("complexappToken"))
+  // );
+  // const [flashMessages, setFlashMessages] = useState([]);
 
-  function addFlashMessage(msg) {
-    setFlashMessages(prev => prev.concat(msg));
-  }
+  // function addFlashMessage(msg) {
+  //   setFlashMessages(prev => prev.concat(msg));
+  // }
 
   return (
-    <ExampleContext.Provider value={{ addFlashMessage, setLoggedIn }}>
-      <BrowserRouter>
-        <FlashMessages massages={flashMessages} />
-        <Header loggedIn={loggedIn} />
-        <Routes>
-          <Route path="/" element={loggedIn ? <Home /> : <HomeGuest />} />
-          <Route path="/post/:id" element={<ViewSinglePost />} />
-          <Route path="/create-post" element={<CreatePost />} />
-          <Route path="/about-us" element={<About />} />
-          <Route path="/terms" element={<Terms />} />
-        </Routes>
-        <Footer />
-      </BrowserRouter>
-    </ExampleContext.Provider>
+    <StateContext.Provider value={state}>
+      <DispatchContext.Provider value={dispatch}>
+        <BrowserRouter>
+          <FlashMessages massages={state.flashMessages} />
+          <Header />
+          <Routes>
+            <Route
+              path="/"
+              element={state.loggedIn ? <Home /> : <HomeGuest />}
+            />
+            <Route path="/post/:id" element={<ViewSinglePost />} />
+            <Route path="/create-post" element={<CreatePost />} />
+            <Route path="/about-us" element={<About />} />
+            <Route path="/terms" element={<Terms />} />
+          </Routes>
+          <Footer />
+        </BrowserRouter>
+      </DispatchContext.Provider>
+    </StateContext.Provider>
   );
 }
 
