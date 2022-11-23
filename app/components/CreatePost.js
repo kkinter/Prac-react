@@ -1,19 +1,23 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Page from "./Page";
 import Axios from "axios";
 
 function CreatePost() {
   const [title, setTitle] = useState();
   const [body, setBody] = useState();
+  const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      await Axios.post("/create-post", {
+      const response = await Axios.post("/create-post", {
         title,
         body,
         token: localStorage.getItem("complexappToken"),
       });
+      // Redirect to new post url
+      navigate(`/post/${response.data}`);
       console.log("새 게시물이 작성되었습니다.");
     } catch (e) {
       console.log("잘못된 접근입니다.");
