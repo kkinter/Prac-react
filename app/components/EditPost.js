@@ -35,13 +35,17 @@ function ViewSinglePost() {
         draft.isFetching = false;
         return;
       case "titleChange":
+        draft.title.hasErrors = false;
         draft.title.value = action.value;
         return;
       case "bodyChange":
+        draft.body.hasErrors = false;
         draft.body.value = action.value;
         return;
       case "submitRequest":
-        draft.sendCount++;
+        if (!draft.title.hasErrors && !draft.body.hasErrors) {
+          draft.sendCount++;
+        }
         return;
       case "saveRequestStarted":
         draft.isSaving = true;
@@ -49,12 +53,27 @@ function ViewSinglePost() {
       case "saveRequestFinished":
         draft.isSaving = false;
         return;
+      case "titleRules":
+        if (!action.value.trim()) {
+          draft.title.hasErrors = true;
+          draft.title.message = "You must provide a title";
+        }
+        return;
+      case "bodyRules":
+        if (!action.value.trim()) {
+          draft.body.hasErrors = true;
+          draft.body.message = "You must provide a body";
+        }
+        return;
     }
   }
   const [state, dispatch] = useImmerReducer(ourReducer, originalState);
 
   function submitHandler(e) {
     e.preventDefault();
+    // Enter 키 제출
+    dispatch({ type: "titleRules", value: state.title.value });
+    dispatch({ type: "bodyRules", value: state.body.value });
     dispatch({ type: "submitRequest" });
   }
 
@@ -66,7 +85,6 @@ function ViewSinglePost() {
         const response = await axios.get(`/post/${state.id}`, {
           cancelToken: ourRequest.token,
         });
-        console.log(response.data);
         dispatch({ type: "fetchComplete", value: response.data });
       } catch (e) {
         console.log("There was a problem.");
@@ -95,7 +113,6 @@ function ViewSinglePost() {
               cancelToken: ourRequest.token,
             }
           );
-          console.log(state.isSaving);
           dispatch({ type: "saveRequestFinished" });
           appDispatch({ type: "flashMessage", value: "Post was Update" });
         } catch (e) {
@@ -124,6 +141,9 @@ function ViewSinglePost() {
             <small>Title</small>
           </label>
           <input
+            onBlur={e =>
+              dispatch({ type: "titleRules", value: e.target.value })
+            }
             onChange={e =>
               dispatch({ type: "titleChange", value: e.target.value })
             }
@@ -136,6 +156,11 @@ function ViewSinglePost() {
             placeholder=""
             autoComplete="off"
           />
+          {state.title.hasErrors && (
+            <div className="alert alert-danger small liveValidateMessage">
+              {state.title.message}
+            </div>
+          )}
         </div>
 
         <div className="form-group">
@@ -143,6 +168,7 @@ function ViewSinglePost() {
             <small>Body Content</small>
           </label>
           <textarea
+            onBlur={e => dispatch({ type: "bodyRules", value: e.target.value })}
             onChange={e =>
               dispatch({ type: "bodyChange", value: e.target.value })
             }
@@ -152,6 +178,11 @@ function ViewSinglePost() {
             type="text"
             value={state.body.value}
           />
+          {state.body.hasErrors && (
+            <div className="alert alert-danger small liveValidateMessage">
+              {state.body.message}
+            </div>
+          )}
         </div>
 
         <button className="btn btn-primary" disabled={state.isSaving}>
