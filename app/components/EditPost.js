@@ -2,12 +2,14 @@ import React, { useContext, useEffect, useState } from "react";
 import { useImmerReducer } from "use-immer";
 import Page from "./Page";
 import axios from "axios";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import LoadingDotsIcon from "./LoadingDotsIcon";
 import StateContext from "../StateContext";
 import DispatchContext from "../DispatchContext";
+import NotFound from "./NotFound";
 
-function ViewSinglePost() {
+function EditPost() {
+  const navigate = useNavigate();
   const appState = useContext(StateContext);
   const appDispatch = useContext(DispatchContext);
 
@@ -26,6 +28,7 @@ function ViewSinglePost() {
     isSaving: false,
     id: useParams().id,
     sendCount: 0,
+    notFound: false,
   };
   function ourReducer(draft, action) {
     switch (action.type) {
@@ -65,6 +68,9 @@ function ViewSinglePost() {
           draft.body.message = "You must provide a body";
         }
         return;
+      case "notFound":
+        draft.notFound = true;
+        return;
     }
   }
   const [state, dispatch] = useImmerReducer(ourReducer, originalState);
@@ -85,7 +91,18 @@ function ViewSinglePost() {
         const response = await axios.get(`/post/${state.id}`, {
           cancelToken: ourRequest.token,
         });
-        dispatch({ type: "fetchComplete", value: response.data });
+        if (response.data) {
+          dispatch({ type: "fetchComplete", value: response.data });
+          if (appState.user.username != response.data.author.username) {
+            appDispatch({
+              type: "flashMessage",
+              value: "Yoy do not have permission",
+            });
+            navigate("/");
+          }
+        } else {
+          dispatch({ type: "notFound" });
+        }
       } catch (e) {
         console.log("There was a problem.");
       }
@@ -126,6 +143,10 @@ function ViewSinglePost() {
     }
   }, [state.sendCount]);
 
+  if (state.notFound) {
+    return <NotFound />;
+  }
+
   if (state.isFetching)
     return (
       <Page title="...">
@@ -135,7 +156,10 @@ function ViewSinglePost() {
 
   return (
     <Page title="Edit post">
-      <form onSubmit={submitHandler}>
+      <Link className="small font-weight-bold" to={`/post/${state.id}`}>
+        &laquo;Back to post
+      </Link>
+      <form className="mt-3" onSubmit={submitHandler}>
         <div className="form-group">
           <label htmlFor="post-title" className="text-muted mb-1">
             <small>Title</small>
@@ -193,4 +217,4 @@ function ViewSinglePost() {
   );
 }
 
-export default ViewSinglePost;
+export default EditPost;

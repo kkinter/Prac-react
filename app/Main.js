@@ -20,6 +20,7 @@ import ViewSinglePost from "./components/ViewSinglePost";
 import FlashMessages from "./components/FlashMessages";
 import Profile from "./components/Profile";
 import EditPost from "./components/EditPost";
+import NotFound from "./components/NotFound";
 
 function Main() {
   const initalState = {
@@ -81,7 +82,6 @@ function Main() {
         <BrowserRouter>
           <FlashMessages massages={state.flashMessages} />
           <Header />
-
           <Routes>
             <Route path="/profile/:username/*" element={<Profile />} />
             <Route
@@ -93,6 +93,7 @@ function Main() {
             <Route path="/create-post" element={<CreatePost />} />
             <Route path="/about-us" element={<About />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
           <Footer />
         </BrowserRouter>
