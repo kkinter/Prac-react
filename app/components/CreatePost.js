@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Page from "./Page";
 import Axios from "axios";
 
-function CreatePost() {
+function CreatePost(props) {
   const [title, setTitle] = useState();
   const [body, setBody] = useState();
   const navigate = useNavigate();
@@ -17,6 +17,7 @@ function CreatePost() {
         token: localStorage.getItem("complexappToken"),
       });
       // Redirect to new post url
+      props.addFlashMessage("새 게시글이 작성되었습니다. ");
       navigate(`/post/${response.data}`);
       console.log("새 게시물이 작성되었습니다.");
     } catch (e) {
