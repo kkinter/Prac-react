@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Page from "./Page";
 import Axios from "axios";
 import DispatchContext from "../DispatchContext";
+import StateContext from "../StateContext";
 
 function CreatePost(props) {
   const [title, setTitle] = useState();
@@ -10,6 +11,7 @@ function CreatePost(props) {
   const navigate = useNavigate();
   // const { addFlashMessage } = useContext(ExampleContext);
   const appDispatch = useContext(DispatchContext);
+  const appState = useContext(StateContext);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -17,7 +19,7 @@ function CreatePost(props) {
       const response = await Axios.post("/create-post", {
         title,
         body,
-        token: localStorage.getItem("complexappToken"),
+        token: appState.user.token,
       });
       // Redirect to new post url
       // addFlashMessage("새 게시글이 작성되었습니다.  ");

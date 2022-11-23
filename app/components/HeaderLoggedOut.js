@@ -17,11 +17,11 @@ function HeaderLoggedOut(props) {
       });
       if (response.data) {
         // localStorage.setItem(<storage name>, <data>)
-        localStorage.setItem("complexappToken", response.data.token);
-        localStorage.setItem("complexappUsername", response.data.username);
-        localStorage.setItem("complexappAvatar", response.data.avatar);
+        // localStorage.setItem("complexappToken", response.data.token);
+        // localStorage.setItem("complexappUsername", response.data.username);
+        // localStorage.setItem("complexappAvatar", response.data.avatar);
         // setLoggedIn(true);
-        appDispatch({ type: "login" });
+        appDispatch({ type: "login", data: response.data });
       } else {
         console.log("잘못된 비밀번호 입니다.");
       }
